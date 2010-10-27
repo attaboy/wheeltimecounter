@@ -1,18 +1,38 @@
 jQuery.fn.extend({
   tickCounter: function(params) {
     var that = this;
+    var $container = $('<span/>').addClass('tickCounterDigitContainer');
 
     var getValue = function() {
       return Number(that.text());
     };
 
+    var setValueForDigit = function(digitNumber, value) {
+      var className = 'tickCounterDigit' + digitNumber;
+      var $digit = $container.find('.' + className);
+      if (!$digit.length) {
+        $digit = $('<span/>').addClass('tickCounterDigit ' + className);
+        $container.prepend($digit);
+      }
+      $digit.empty().append(value);
+    };
+
     var setValue = function(value) {
       that.each(function() {
-        this.innerHTML = value;
+        var $this = $(this);
+        var asString = String(value);
+        var numDigits = asString.length;
+        $container.empty();
+        for (var i = numDigits; i > 0; i--) {
+          setValueForDigit(i, asString.charAt(i - 1));
+        }
       });
     };
 
     var initialValue = getValue();
+    that.empty().append($container);
+
+    setValue(initialValue);
     var updateWith = params.updateWith || function() {
       return ++initialValue;
     };
@@ -53,8 +73,10 @@ jQuery.fn.extend({
 
     return {
       start: function() {
-        active = true;
-        update();
+        if (!active) {
+          active = true;
+          update();
+        }
       },
       stop: function() {
         active = false;

@@ -1,0 +1,17 @@
+.tickCounterDigitContainer {
+  display: inline-block;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tickCounterDigit {
+  display: block;
+  float: left;
+  background-color: #EEE;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #DDD), color-stop(20%, #FFF), color-stop(100%, #DDD)); /* webkit */
+  text-shadow: white 0 1px 0;
+  padding: 1px 5px;
+  margin-right: 1px;
+}
