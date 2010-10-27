@@ -41,10 +41,14 @@ jQuery.fn.extend({
     };
 
     var setValue = function(value) {
+      var asString = String(value);
+      var numDigits = asString.length;
+      var digitDiff = String(currentRealValue).length - asString.length;
+      if (digitDiff > 0) {
+        $that.find('.tickCounterDigitContainer').slice(0, digitDiff).remove();
+      }
       $that.each(function() {
         var $this = $(this);
-        var asString = String(value);
-        var numDigits = asString.length;
         for (var i = numDigits; i > 0; i--) {
           setValueForDigit(numDigits - i + 1, asString.charAt(i - 1));
         }
@@ -60,6 +64,7 @@ jQuery.fn.extend({
     };
 
     var animator = function(start, end) {
+      if (start === end) return;
       var amount = start;
       var currentValue = start;
       var diff = end - start;
@@ -68,17 +73,25 @@ jQuery.fn.extend({
       var incrementAmount = diff / numUpdates;
       var increment = function() {
         amount += incrementAmount;
-        if (amount >= currentValue + 1) {
-          currentValue = Math.min(end, Math.round(amount));
-          setValue(currentValue);
+        if (start < end) {
+          if (amount >= currentValue + 1) {
+            currentValue = Math.min(end, Math.round(amount));
+            setValue(currentValue);
+          }
+        } else {
+          if (amount <= currentValue - 1) {
+            currentValue = Math.max(end, Math.round(amount));
+            setValue(currentValue);
+          }
         }
         if (lastUpdate < numUpdates) {
           window.setTimeout(increment, animationDelay);
           lastUpdate++;
         } else {
-          if (currentValue < end) {
+          if ((start < end && currentValue < end) || (start > end && currentValue > end)) {
             setValue(end);
           }
+          currentRealValue = end;
           update();
         }
       };
@@ -89,7 +102,6 @@ jQuery.fn.extend({
       if (active) {
         var newValue = updateWith();
         animator(currentRealValue, newValue);
-        currentRealValue = newValue;
         onUpdate();
       }
     };
