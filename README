@@ -1,0 +1,1 @@
+TickCounter is a jQuery plugin to simulate real-time counting by polling for new numeric values and updating the display. It's designed to poll every n seconds, and then in the time between polls, animate the display value up or down to the new value.
