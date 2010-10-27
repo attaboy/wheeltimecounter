@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Number Counter Upper</title>
+  <script src="../js/lib/jquery/1.4.2/jquery.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+  <script src="../js/tickcounter.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="../css/tickcounter.css" type="text/css" media="all" charset="utf-8">
+</head>
+<body>
+
+<div id="number">0</div>
+<button id="start">Start</button>
+<button id="stop">Stop</button>
+
+<script>
+var count = 1234;
+var updater = function() {
+  var returnValue = count;
+  count += count;
+  return returnValue;
+};
+
+$(function() {
+  var counter = $('#number').tickCounter({
+    updateWith: updater,
+    updateFrequency: 10000,
+    animationDelay: 100
+  });
+  $('#start').click(function() { counter.start(); });
+  $('#stop').click(function() { counter.stop(); });
+});
+</script>
+</body>
+</html>
