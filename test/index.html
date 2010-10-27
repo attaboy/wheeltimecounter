@@ -8,15 +8,15 @@
 </head>
 <body>
 
-<div id="number">0</div>
+<div id="number">567</div>
 <button id="start">Start</button>
 <button id="stop">Stop</button>
 
 <script>
-var count = 1234;
+var count = 577;
 var updater = function() {
   var returnValue = count;
-  count += count;
+  count += 10;
   return returnValue;
 };
 
@@ -24,7 +24,7 @@ $(function() {
   var counter = $('#number').tickCounter({
     updateWith: updater,
     updateFrequency: 10000,
-    animationDelay: 100
+    animationDelay: 150
   });
   $('#start').click(function() { counter.start(); });
   $('#stop').click(function() { counter.stop(); });

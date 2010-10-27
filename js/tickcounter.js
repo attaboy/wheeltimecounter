@@ -1,46 +1,63 @@
 jQuery.fn.extend({
   tickCounter: function(params) {
-    var that = this;
-    var $container = $('<span/>').addClass('tickCounterDigitContainer');
+    var frequency = params.updateFrequency || 5000; // poll every 5 seconds
+    var animationDelay = params.animationDelay || 100; // animate every 0.1 seconds
+    var onUpdate = params.onUpdate || function() {};
+    var active = false;
+    var $that = this;
+    var initialValue;
+    var currentRealValue;
+
+    var $container = $('<span/>').addClass('tickCounterContainer');
 
     var getValue = function() {
-      return Number(that.text());
+      var n = Number($that.text());
+      return n;
     };
 
     var setValueForDigit = function(digitNumber, value) {
       var className = 'tickCounterDigit' + digitNumber;
       var $digit = $container.find('.' + className);
+      var $digitValue = $('<span/>').addClass('tickCounterDigitValue').html(value);
       if (!$digit.length) {
+        var $outerDigit = $('<span/>').addClass('tickCounterDigitContainer');
         $digit = $('<span/>').addClass('tickCounterDigit ' + className);
-        $container.prepend($digit);
+        $digit.append($digitValue);
+        $outerDigit.append($digit);
+        $container.prepend($outerDigit);
+      } else {
+        var $previousDigit = $digit.find('.tickCounterDigitValue');
+        if ($previousDigit.text() !== value) {
+          var height = $digit.height();
+          $digit.append($digitValue);
+          $digit.animate({
+            top: (-height)+'px'
+          }, Math.max(20, animationDelay - 20), function() {
+            $digit.children().eq(0).remove();
+            $digit.css({ top: null });
+          });
+        }
       }
-      $digit.empty().append(value);
     };
 
     var setValue = function(value) {
-      that.each(function() {
+      $that.each(function() {
         var $this = $(this);
         var asString = String(value);
         var numDigits = asString.length;
-        $container.empty();
         for (var i = numDigits; i > 0; i--) {
-          setValueForDigit(i, asString.charAt(i - 1));
+          setValueForDigit(numDigits - i + 1, asString.charAt(i - 1));
         }
       });
     };
 
-    var initialValue = getValue();
-    that.empty().append($container);
+    var initialValue = currentRealValue = getValue();
+    $that.empty().append($container);
 
     setValue(initialValue);
     var updateWith = params.updateWith || function() {
       return ++initialValue;
     };
-    var frequency = params.updateFrequency || 5000; // poll every 5 seconds
-    var animationDelay = params.animationDelay || 100; // animate every 0.1 seconds
-    var onUpdate = params.onUpdate || function() {};
-
-    var active = false;
 
     var animator = function(start, end) {
       var amount = start;
@@ -55,9 +72,13 @@ jQuery.fn.extend({
           currentValue = Math.min(end, Math.round(amount));
           setValue(currentValue);
         }
-        if (amount < end && lastUpdate < numUpdates) {
+        if (lastUpdate < numUpdates) {
           window.setTimeout(increment, animationDelay);
+          lastUpdate++;
         } else {
+          if (currentValue < end) {
+            setValue(end);
+          }
           update();
         }
       };
@@ -66,7 +87,9 @@ jQuery.fn.extend({
 
     var update = function() {
       if (active) {
-        animator(getValue(), updateWith());
+        var newValue = updateWith();
+        animator(currentRealValue, newValue);
+        currentRealValue = newValue;
         onUpdate();
       }
     };
