@@ -8,6 +8,7 @@ jQuery.fn.extend({
     var oldTargetValue = null;
     var newTargetValue;
     var oldDisplayString = '';
+    var quantum;
 
     var now = function() {
       return (new Date().getTime());
@@ -77,6 +78,9 @@ jQuery.fn.extend({
           var timeToFill = endMoment - now();
           var diff = newTargetValue - currentDisplayValue;
           var incrementAmount = diff / (timeToFill / animationDelay);
+          if(quantum) {
+            incrementAmount = poisson(incrementAmount / quantum) * quantum;
+          }
           runningTotal += incrementAmount;
           if (currentDisplayValue < newTargetValue) {
             if (runningTotal >= currentDisplayValue + 1) {
@@ -99,7 +103,20 @@ jQuery.fn.extend({
         }
       }
       increment();
-    };
+      };
+
+      function poisson(lambda) {
+        var L = Math.exp(-lambda);
+        var p = Math.random();
+        var k = 1;
+
+        while(p > L) {
+          k++;
+          p *= Math.random();
+        }
+
+        return k - 1;
+      }
 
     var self = {
       initialize: function() {
@@ -123,6 +140,10 @@ jQuery.fn.extend({
       },
       setFormatter: function(callback) {
         formatter = callback;
+        return self;
+      },
+      setQuantum: function(value) {
+        quantum = value;
         return self;
       },
       updateAndWait: function(newValue, delay) {
