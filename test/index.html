@@ -8,24 +8,27 @@
 </head>
 <body>
 
-<div id="number">$0.10</div>
+<div id="number">$3.00</div>
 <button id="start">Start</button>
 <button id="stop">Stop</button>
 
 <br>
-Updating to:
-<div id="status">
-</div>
+Counting up to
+<span id="status"></span>
+
+in
+<span id="timeleft"></span>s
 
 <script>
-var count = 10;
+var count = 300;
 var updater = function() {
-  var n = count += Math.round(Math.random() * 100);
+  var n = count += Math.round((Math.random() * 100) * ((Math.random() * 100)));
   $('#status').html(n);
   return n;
 };
 
 var intervalID;
+var intervalID2;
 
 $(function() {
   var counter = $('#number').tickCounter();
@@ -34,15 +37,27 @@ $(function() {
     .setFormatter(function(value) {
       return '$' + (value/100).toFixed(2);
     })
-    .setInitialValue(10)
-    .setQuantum(3)
+    .setInitialValue(300)
+    .setQuantum(150)
     .initialize();
+
+  function updateCounter(delay) {
+    var target = updater();
+    counter.updateAndWait(target, delay);
+    var moment = (new Date().getTime()) + delay;
+    if(intervalID2) {
+      window.clearInterval(intervalID2);
+    }
+    intervalID2 = window.setInterval(function() {
+      $("#timeleft").html(Math.round((moment - (new Date().getTime())) / 1000));
+    }, 500);
+  }
 
   $('#start').click(function() {
     intervalID = window.setInterval(function() {
-      counter.updateAndWait(updater(), 10000);
+     updateCounter(10000);
     }, 5000);
-    counter.updateAndWait(updater(), 5000);
+    updateCounter(5000);
   });
   $('#stop').click(function() {
     window.clearInterval(intervalID);
