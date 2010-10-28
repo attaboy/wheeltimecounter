@@ -2,6 +2,7 @@ jQuery.fn.extend({
   tickCounter: function(params) {
     var frequency = params.updateFrequency || 5000; // poll every 5 seconds
     var animationDelay = params.animationDelay || 100; // animate every 0.1 seconds
+    var quantum = params.quantum;
     var onUpdate = params.onUpdate || function() {};
     var active = false;
     var animating = false;
@@ -78,6 +79,9 @@ jQuery.fn.extend({
           var timeToFill = endMoment - now();
           var diff = targetValue - currentValue;
           var incrementAmount = diff / (timeToFill / animationDelay);
+          if(quantum) {
+            incrementAmount = poisson(incrementAmount / quantum) * quantum;
+          }
           runningTotal += incrementAmount;
           if (currentValue < targetValue) {
             if (runningTotal >= currentValue + 1) {
@@ -100,9 +104,22 @@ jQuery.fn.extend({
         }
       }
       increment();
-    };
+      };
 
-    return {
+      function poisson(lambda) {
+        var L = Math.exp(-lambda);
+        var p = Math.random();
+        var k = 1;
+
+        while(p > L) {
+          k++;
+          p *= Math.random();
+        }
+
+        return k - 1;
+      }
+
+      return {
       updateAndWait: function(newValue, delay) {
         endMoment = new Date(now() + delay);
         targetValue = newValue;

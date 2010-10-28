@@ -29,7 +29,8 @@ var intervalID;
 
 $(function() {
   var counter = $('#number').tickCounter({
-    animationDelay: 100
+    animationDelay: 100,
+    quantum: 3
   });
   $('#start').click(function() {
     intervalID = window.setInterval(function() {
