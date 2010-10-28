@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div id="number">0</div>
+<div id="number">$0.10</div>
 <button id="start">Start</button>
 <button id="stop">Stop</button>
 
@@ -18,7 +18,7 @@ Updating to:
 </div>
 
 <script>
-var count = 0;
+var count = 10;
 var updater = function() {
   var n = count += Math.round(Math.random() * 100);
   $('#status').html(n);
@@ -28,9 +28,15 @@ var updater = function() {
 var intervalID;
 
 $(function() {
-  var counter = $('#number').tickCounter({
-    animationDelay: 100
-  });
+  var counter = $('#number').tickCounter();
+  counter
+    .setAnimationDelay(100)
+    .setFormatter(function(value) {
+      return '$' + (value/100).toFixed(2);
+    })
+    .setInitialValue(10)
+    .initialize();
+
   $('#start').click(function() {
     intervalID = window.setInterval(function() {
       counter.updateAndWait(updater(), 10000);

@@ -1,14 +1,13 @@
 jQuery.fn.extend({
-  tickCounter: function(params) {
-    var frequency = params.updateFrequency || 5000; // poll every 5 seconds
-    var animationDelay = params.animationDelay || 100; // animate every 0.1 seconds
-    var onUpdate = params.onUpdate || function() {};
-    var active = false;
+  tickCounter: function() {
+    var animationDelay = 100; // animate every 0.1 seconds by default
     var animating = false;
+    var hasInitialized = false;
     var $that = this;
     var initialValue;
-    var currentRealValue;
-    var targetValue;
+    var oldTargetValue = null;
+    var newTargetValue;
+    var oldDisplayString = '';
 
     var now = function() {
       return (new Date().getTime());
@@ -17,6 +16,10 @@ jQuery.fn.extend({
     var getInitialValue = function() {
       var n = Number($that.text());
       return n;
+    };
+
+    var formatter = function(value) { // can be replaced by setFormatter
+      return value;
     };
 
     var endMoment = now();
@@ -49,9 +52,9 @@ jQuery.fn.extend({
     };
 
     var setValue = function(value) {
-      var asString = String(value);
+      var asString = String(formatter(value));
       var numDigits = asString.length;
-      var digitDiff = String(currentRealValue).length - asString.length;
+      var digitDiff = oldDisplayString.length - asString.length;
       if (digitDiff > 0) {
         $that.find('.tickCounterDigitContainer').slice(0, digitDiff).remove();
       }
@@ -61,55 +64,76 @@ jQuery.fn.extend({
           setValueForDigit(numDigits - i + 1, asString.charAt(i - 1));
         }
       });
+      oldDisplayString = asString;
     };
-
-    var initialValue = currentRealValue = getInitialValue();
-    $that.empty().append($container);
-
-    setValue(initialValue);
 
     var animate = function() {
       animating = true;
-      var currentValue = currentRealValue;
-      var runningTotal = currentValue;
+      var currentDisplayValue = oldTargetValue;
+      var runningTotal = currentDisplayValue;
 
       var increment = function() {
-        if (now() < endMoment && currentValue != targetValue) {
+        if (now() < endMoment && currentDisplayValue != newTargetValue) {
           var timeToFill = endMoment - now();
-          var diff = targetValue - currentValue;
+          var diff = newTargetValue - currentDisplayValue;
           var incrementAmount = diff / (timeToFill / animationDelay);
           runningTotal += incrementAmount;
-          if (currentValue < targetValue) {
-            if (runningTotal >= currentValue + 1) {
-              currentValue = Math.min(targetValue, Math.round(runningTotal));
-              setValue(currentValue);
+          if (currentDisplayValue < newTargetValue) {
+            if (runningTotal >= currentDisplayValue + 1) {
+              currentDisplayValue = Math.min(newTargetValue, Math.round(runningTotal));
+              setValue(currentDisplayValue);
             }
           } else {
-            if (runningTotal <= currentValue - 1) {
-              currentValue = Math.max(targetValue, Math.round(runningTotal));
-              setValue(currentValue);
+            if (runningTotal <= currentDisplayValue - 1) {
+              currentDisplayValue = Math.max(newTargetValue, Math.round(runningTotal));
+              setValue(currentDisplayValue);
             }
           }
           window.setTimeout(increment, animationDelay);
         } else {
-          if (currentValue != targetValue) {
-            setValue(targetValue);
+          if (currentDisplayValue != newTargetValue) {
+            setValue(newTargetValue);
           }
-          currentRealValue = targetValue;
+          oldTargetValue = newTargetValue;
           animating = false;
         }
       }
       increment();
     };
 
-    return {
+    var self = {
+      initialize: function() {
+        if (!hasInitialized) {
+          if (oldTargetValue === null) {
+            oldTargetValue = getInitialValue();
+          }
+          $that.empty().append($container);
+          setValue(oldTargetValue);
+          hasInitialized = true;
+        }
+        return self;
+      },
+      setInitialValue: function(value) {
+        oldTargetValue = value;
+        return self;
+      },
+      setAnimationDelay: function(value) {
+        animationDelay = value;
+        return self;
+      },
+      setFormatter: function(callback) {
+        formatter = callback;
+        return self;
+      },
       updateAndWait: function(newValue, delay) {
         endMoment = new Date(now() + delay);
-        targetValue = newValue;
+        newTargetValue = newValue;
         if (!animating) {
           animate();
         }
+        return self;
       }
     };
+    return self;
   }
 });
