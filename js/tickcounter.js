@@ -4,16 +4,24 @@ jQuery.fn.extend({
     var animationDelay = params.animationDelay || 100; // animate every 0.1 seconds
     var onUpdate = params.onUpdate || function() {};
     var active = false;
+    var animating = false;
     var $that = this;
     var initialValue;
     var currentRealValue;
+    var targetValue;
 
-    var $container = $('<span/>').addClass('tickCounterContainer');
+    var now = function() {
+      return (new Date().getTime());
+    };
 
-    var getValue = function() {
+    var getInitialValue = function() {
       var n = Number($that.text());
       return n;
     };
+
+    var endMoment = now();
+
+    var $container = $('<span/>').addClass('tickCounterContainer');
 
     var setValueForDigit = function(digitNumber, value) {
       var className = 'tickCounterDigit' + digitNumber;
@@ -55,66 +63,52 @@ jQuery.fn.extend({
       });
     };
 
-    var initialValue = currentRealValue = getValue();
+    var initialValue = currentRealValue = getInitialValue();
     $that.empty().append($container);
 
     setValue(initialValue);
-    var updateWith = params.updateWith || function() {
-      return ++initialValue;
-    };
 
-    var animator = function(start, end) {
-      if (start === end) return;
-      var amount = start;
-      var currentValue = start;
-      var diff = end - start;
-      var numUpdates = Math.round(frequency / animationDelay);
-      var lastUpdate = 0;
-      var incrementAmount = diff / numUpdates;
+    var animate = function() {
+      animating = true;
+      var currentValue = currentRealValue;
+      var runningTotal = currentValue;
+
       var increment = function() {
-        amount += incrementAmount;
-        if (start < end) {
-          if (amount >= currentValue + 1) {
-            currentValue = Math.min(end, Math.round(amount));
-            setValue(currentValue);
+        if (now() < endMoment && currentValue != targetValue) {
+          var timeToFill = endMoment - now();
+          var diff = targetValue - currentValue;
+          var incrementAmount = diff / (timeToFill / animationDelay);
+          runningTotal += incrementAmount;
+          if (currentValue < targetValue) {
+            if (runningTotal >= currentValue + 1) {
+              currentValue = Math.min(targetValue, Math.round(runningTotal));
+              setValue(currentValue);
+            }
+          } else {
+            if (runningTotal <= currentValue - 1) {
+              currentValue = Math.max(targetValue, Math.round(runningTotal));
+              setValue(currentValue);
+            }
           }
-        } else {
-          if (amount <= currentValue - 1) {
-            currentValue = Math.max(end, Math.round(amount));
-            setValue(currentValue);
-          }
-        }
-        if (lastUpdate < numUpdates) {
           window.setTimeout(increment, animationDelay);
-          lastUpdate++;
         } else {
-          if ((start < end && currentValue < end) || (start > end && currentValue > end)) {
-            setValue(end);
+          if (currentValue != targetValue) {
+            setValue(targetValue);
           }
-          currentRealValue = end;
-          update();
+          currentRealValue = targetValue;
+          animating = false;
         }
-      };
-      window.setTimeout(increment, animationDelay);
-    };
-
-    var update = function() {
-      if (active) {
-        var newValue = updateWith();
-        animator(currentRealValue, newValue);
-        onUpdate();
       }
+      increment();
     };
 
     return {
-      start: function() {
-        if (!active) {
-          active = true;
-          update();
+      updateAndWait: function(newValue, delay) {
+        endMoment = new Date(now() + delay);
+        targetValue = newValue;
+        if (!animating) {
+          animate();
         }
-      },
-      stop: function() {
-        active = false;
       }
     };
   }

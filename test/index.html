@@ -8,29 +8,38 @@
 </head>
 <body>
 
-<div id="number">10</div>
+<div id="number">0</div>
 <button id="start">Start</button>
 <button id="stop">Stop</button>
 
+<br>
+Updating to:
+<div id="status">
+</div>
+
 <script>
-var count = 20;
+var count = 0;
 var updater = function() {
-  var returnValue = count;
-  count += 10;
-  return returnValue;
+  var n = count += Math.round(Math.random() * 100);
+  $('#status').html(n);
+  return n;
 };
+
+var intervalID;
 
 $(function() {
   var counter = $('#number').tickCounter({
-    updateWith: updater,
-    updateFrequency: 10000,
-    animationDelay: 150,
-    onUpdate: function() {
-      // run this code each time the ticker starts counting
-    }
+    animationDelay: 100
   });
-  $('#start').click(function() { counter.start(); });
-  $('#stop').click(function() { counter.stop(); });
+  $('#start').click(function() {
+    intervalID = window.setInterval(function() {
+      counter.updateAndWait(updater(), 10000);
+    }, 5000);
+    counter.updateAndWait(updater(), 5000);
+  });
+  $('#stop').click(function() {
+    window.clearInterval(intervalID);
+  });
 });
 </script>
 </body>
