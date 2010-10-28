@@ -1,10 +1,9 @@
-jQuery.fn.extend({
-  tickCounter: function() {
+(function($) {
+  $.fn.tickCounter = function() {
     var animationDelay = 100; // animate every 0.1 seconds by default
     var animating = false;
     var hasInitialized = false;
     var $that = this;
-    var initialValue;
     var oldTargetValue = null;
     var newTargetValue;
     var oldDisplayString = '';
@@ -59,13 +58,23 @@ jQuery.fn.extend({
       if (digitDiff > 0) {
         $that.find('.tickCounterDigitContainer').slice(0, digitDiff).remove();
       }
-      $that.each(function() {
-        var $this = $(this);
-        for (var i = numDigits; i > 0; i--) {
-          setValueForDigit(numDigits - i + 1, asString.charAt(i - 1));
-        }
-      });
+      for (var i = numDigits; i > 0; i--) {
+        setValueForDigit(numDigits - i + 1, asString.charAt(i - 1));
+      }
       oldDisplayString = asString;
+    };
+
+    var poisson = function(lambda) {
+      var L = Math.exp(-lambda);
+      var p = Math.random();
+      var k = 1;
+
+      while (p > L) {
+        k++;
+        p *= Math.random();
+      }
+
+      return k - 1;
     };
 
     var animate = function() {
@@ -78,7 +87,7 @@ jQuery.fn.extend({
           var timeToFill = endMoment - now();
           var diff = newTargetValue - currentDisplayValue;
           var incrementAmount = diff / (timeToFill / animationDelay);
-          if(quantum) {
+          if (quantum) {
             incrementAmount = poisson(incrementAmount / quantum) * quantum;
           }
           runningTotal += incrementAmount;
@@ -101,22 +110,9 @@ jQuery.fn.extend({
           oldTargetValue = newTargetValue;
           animating = false;
         }
-      }
-      increment();
       };
-
-      function poisson(lambda) {
-        var L = Math.exp(-lambda);
-        var p = Math.random();
-        var k = 1;
-
-        while(p > L) {
-          k++;
-          p *= Math.random();
-        }
-
-        return k - 1;
-      }
+      increment();
+    };
 
     var self = {
       initialize: function() {
@@ -156,5 +152,5 @@ jQuery.fn.extend({
       }
     };
     return self;
-  }
-});
+  };
+})(jQuery);
