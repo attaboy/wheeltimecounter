@@ -10,3 +10,6 @@ There are also a few options:
 - you can set a "quantum" which changes the amount the display value will increment by (the default is to increment by the smallest integer possible given the effective speed)
 
 An example that shows all of the options is in test/index.html.
+
+TODO:
+This plugin doesn't currently respect the way plugins generally work -- it returns a new object with methods rather than the original jQuery object it was called on.
