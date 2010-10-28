@@ -78,7 +78,7 @@ jQuery.fn.extend({
           var timeToFill = endMoment - now();
           var diff = newTargetValue - currentDisplayValue;
           var incrementAmount = diff / (timeToFill / animationDelay);
-          if(quantum) {
+          if (quantum) {
             incrementAmount = poisson(incrementAmount / quantum) * quantum;
           }
           runningTotal += incrementAmount;
@@ -103,20 +103,20 @@ jQuery.fn.extend({
         }
       }
       increment();
-      };
+    };
 
-      function poisson(lambda) {
-        var L = Math.exp(-lambda);
-        var p = Math.random();
-        var k = 1;
+    var poisson = function(lambda) {
+      var L = Math.exp(-lambda);
+      var p = Math.random();
+      var k = 1;
 
-        while(p > L) {
-          k++;
-          p *= Math.random();
-        }
-
-        return k - 1;
+      while (p > L) {
+        k++;
+        p *= Math.random();
       }
+
+      return k - 1;
+    };
 
     var self = {
       initialize: function() {
