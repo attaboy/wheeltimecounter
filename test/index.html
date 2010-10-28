@@ -3,8 +3,8 @@
 <head>
   <title>Number Counter Upper</title>
   <script src="../js/lib/jquery/1.4.2/jquery.min.js" type="text/javascript" language="javascript" charset="utf-8"></script>
-  <script src="../js/tickcounter.js" type="text/javascript" language="javascript" charset="utf-8"></script>
-  <link rel="stylesheet" href="../css/tickcounter.css" type="text/css" media="all" charset="utf-8">
+  <script src="../js/wheeltimecounter.js" type="text/javascript" language="javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="../css/wheeltimecounter.css" type="text/css" media="all" charset="utf-8">
 </head>
 <body>
 
@@ -28,7 +28,7 @@ var updater = function() {
 var intervalID;
 
 $(function() {
-  var counter = $('#number').tickCounter();
+  var counter = $('#number').wheelTimeCounter();
   counter
     .setAnimationDelay(100)
     .setFormatter(function(value) {

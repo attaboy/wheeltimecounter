@@ -1,6 +1,6 @@
-TickCounter is a jQuery plugin to simulate a real-time numeric counter without needing to poll in real-time.
+WheelTimeCounter is a jQuery plugin to simulate a real-time numeric counter without needing to poll in real-time.
 
-The tickCounter object has an updateAndWait callback (suitable for inserting into a jQuery.ajax onSuccess callback) that takes two parameters: the target value to count towards, and how long it can and should take to get there. At any time after that, you can updateAndWait with a new target value and new amount of delay, and the counter will adjust its counting rate as necessary.
+The wheelTimeCounter object has an updateAndWait callback (suitable for inserting into a jQuery.ajax onSuccess callback) that takes two parameters: the target value to count towards, and how long it can and should take to get there. At any time after that, you can updateAndWait with a new target value and new amount of delay, and the counter will adjust its counting rate as necessary.
 
 The displayed value will only ever "catch up" to the target value if the amount of time specified has elapsed before a new target is set.
 

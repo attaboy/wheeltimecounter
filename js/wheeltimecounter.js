@@ -1,5 +1,5 @@
 (function($) {
-  $.fn.tickCounter = function() {
+  $.fn.wheelTimeCounter = function() {
     var animationDelay = 100; // animate every 0.1 seconds by default
     var animating = false;
     var hasInitialized = false;
